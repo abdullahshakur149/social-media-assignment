@@ -47,7 +47,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { reportId: 
     }
 
     // Use transaction to ensure data consistency
-    const result = await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx) => {
       let status: string;
       let postDeleted = false;
 
@@ -93,6 +93,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { reportId: 
       message: `Report ${action === 'block_post' ? 'processed and post blocked' : action}d successfully`,
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error processing report:', error);
     return NextResponse.json({ message: 'Something went wrong' }, { status: 500 });
   }

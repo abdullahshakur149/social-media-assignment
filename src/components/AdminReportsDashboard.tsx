@@ -112,6 +112,7 @@ function ReportCard({ report, onAction, isActionDisabled }: ReportCardProps) {
   const handleReview = useCallback(() => onAction(report.id, 'review'), [onAction, report.id]);
   const handleDismiss = useCallback(() => onAction(report.id, 'dismiss'), [onAction, report.id]);
   const handleBlockPost = useCallback(() => {
+    // eslint-disable-next-line no-console
     console.log('Block Post button clicked for report:', report.id);
     onAction(report.id, 'block_post');
   }, [onAction, report.id]);
@@ -179,19 +180,23 @@ export function AdminReportsDashboard() {
 
   const handleAction = useCallback(
     (reportId: number, action: ActionType) => {
+      // eslint-disable-next-line no-console
       console.log('handleAction called with:', { reportId, action });
 
       const handleMutation = (notes?: string) => {
+        // eslint-disable-next-line no-console
         console.log('handleMutation called with notes:', notes);
         actionMutation.mutate({ reportId, action, adminNotes: notes });
       };
 
       if (action === 'block_post') {
+        // eslint-disable-next-line no-console
         console.log('Showing confirm dialog for block_post');
         confirm({
           title: 'Block Post',
           message: 'Are you sure you want to block this post? This action cannot be undone.',
           onConfirm: () => {
+            // eslint-disable-next-line no-console
             console.log('Confirm dialog confirmed, showing prompt');
             prompt({
               title: 'Admin Notes',

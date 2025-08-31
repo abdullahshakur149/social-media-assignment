@@ -47,6 +47,7 @@ export function DialogsContextProvider({ children }: { children: React.ReactNode
 
   // Debug dialog state changes
   useEffect(() => {
+    // eslint-disable-next-line no-console
     console.log('Dialog state changed:', dialog);
   }, [dialog]);
 
@@ -73,6 +74,7 @@ export function DialogsContextProvider({ children }: { children: React.ReactNode
   }, [state.isOpen, dialog.promptType]);
 
   const hide = useCallback(() => {
+    // eslint-disable-next-line no-console
     console.log('hide() called, closing dialog');
     state.close();
     setDialog({
@@ -88,6 +90,7 @@ export function DialogsContextProvider({ children }: { children: React.ReactNode
   }, [state, setDialog]);
 
   const handleAffirmative = useCallback(() => {
+    // eslint-disable-next-line no-console
     console.log('handleAffirmative called with dialog type:', dialog.type);
 
     if (dialog.type === 'alert') {
@@ -95,12 +98,14 @@ export function DialogsContextProvider({ children }: { children: React.ReactNode
       return;
     }
     if (dialog.type === 'confirm') {
+      // eslint-disable-next-line no-console
       console.log('Confirm dialog confirmed');
       dialog?.onConfirm?.();
       // Don't call hide() here - let the prompt dialog handle the state
       return;
     }
     if (dialog.type === 'prompt') {
+      // eslint-disable-next-line no-console
       console.log('Prompt dialog submitted with value:', promptValue);
       if (promptValue === '') {
         setInputError('This cannot be empty.');

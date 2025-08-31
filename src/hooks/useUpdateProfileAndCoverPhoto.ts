@@ -2,9 +2,6 @@ import 'server-only';
 
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma/prisma';
-import { v4 as uuid } from 'uuid';
-import { uploadObject } from '@/lib/s3/uploadObject';
-import { fileNameToUrl } from '@/lib/s3/fileNameToUrl';
 import { getServerUser } from '@/lib/getServerUser';
 
 const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/jpg', 'image/png'];
@@ -31,22 +28,25 @@ export async function useUpdateProfileAndCoverPhoto({
   }
 
   try {
-    const fileExtension = file.type.split('/')[1];
     if (!ALLOWED_FILE_TYPES.includes(file.type)) {
       return NextResponse.json({ error: 'Unsupported file type.' }, { status: 400 });
     }
 
-    // Upload image to S3
+    // Convert file to base64 for local storage
     const buffer = Buffer.from(await file.arrayBuffer());
-    const fileName = `${Date.now()}-${uuid()}.${fileExtension}`;
-    await uploadObject(buffer, fileName, fileExtension);
+    const base64Data = buffer.toString('base64');
+
+    // Store the base64 data as the file name (temporary solution)
+    // In a real implementation, you might want to store files in a local directory
+    // or use a different cloud storage service
+    const fileData = `data:${file.type};base64,${base64Data}`;
 
     await prisma.user.update({
       where: {
         id: userId,
       },
       data: {
-        [toUpdate]: fileName,
+        [toUpdate]: fileData,
       },
     });
 
@@ -58,7 +58,7 @@ export async function useUpdateProfileAndCoverPhoto({
           create: [
             {
               userId,
-              fileName,
+              fileName: fileData,
               type: 'PHOTO',
             },
           ],
@@ -66,9 +66,7 @@ export async function useUpdateProfileAndCoverPhoto({
       },
     });
 
-    const uploadedTo = fileNameToUrl(fileName);
-
-    return NextResponse.json({ uploadedTo });
+    return NextResponse.json({ uploadedTo: fileData });
   } catch (error) {
     return NextResponse.json({ error: 'Server error.' }, { status: 500 });
   }

@@ -94,6 +94,7 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Error fetching reports:', error);
     return NextResponse.json({ message: 'Something went wrong' }, { status: 500 });
   }

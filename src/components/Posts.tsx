@@ -2,7 +2,7 @@
 
 import { InfiniteData, QueryKey, useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { GetPost, PostIds } from '@/types/definitions';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useOnScreen from '@/hooks/useOnScreen';
 import { AnimatePresence, motion } from 'framer-motion';
 import { NO_PREV_DATA_LOADED, POSTS_PER_PAGE } from '@/constants';
@@ -69,7 +69,8 @@ export function Posts({ type, hashtag, userId }: PostsProps) {
       params.set('limit', isForwards ? POSTS_PER_PAGE.toString() : '100');
       params.set('cursor', cursor.toString());
       params.set('sort-direction', isForwards ? 'desc' : 'asc');
-      const uname = (typeof window !== 'undefined' && (window as any).__feed_username_filter) || '';
+      const uname =
+        (typeof window !== 'undefined' && (window as { __feed_username_filter?: string }).__feed_username_filter) || '';
       if (type === 'feed' && uname) params.set('username', uname);
 
       const fetchUrl =
@@ -160,6 +161,17 @@ export function Posts({ type, hashtag, userId }: PostsProps) {
     topElRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
 
+  const handleUsernameFilterChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value.trim();
+      qc.resetQueries({ queryKey, exact: true });
+      // Pass filter via URL param; server honors ?username=
+      // We store it on a global var to keep it simple without refactoring keys
+      (window as { __feed_username_filter?: string }).__feed_username_filter = value || undefined;
+    },
+    [qc, queryKey],
+  );
+
   const toggleComments = useCallback(
     async (postId: number) => {
       qc.setQueryData<InfiniteData<{ id: number; commentsShown: boolean }[]>>(queryKey, (oldData) => {
@@ -214,13 +226,7 @@ export function Posts({ type, hashtag, userId }: PostsProps) {
               type="text"
               placeholder="Filter by username"
               className="w-full rounded-md border border-border bg-card px-3 py-2 text-sm"
-              onChange={(e) => {
-                const value = e.target.value.trim();
-                qc.resetQueries({ queryKey, exact: true });
-                // Pass filter via URL param; server honors ?username=
-                // We store it on a global var to keep it simple without refactoring keys
-                (window as any).__feed_username_filter = value || undefined;
-              }}
+              onChange={handleUsernameFilterChange}
             />
           </div>
         )}

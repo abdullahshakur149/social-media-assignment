@@ -5,6 +5,7 @@ export function useDialogs() {
   const { setShown, setDialog } = useContext(DialogsContext);
 
   const show = () => {
+    // eslint-disable-next-line no-console
     console.log('show() called, setting dialog to open');
     setShown(true);
   };
@@ -43,6 +44,7 @@ export function useDialogs() {
     promptType?: 'input' | 'textarea';
     onSubmit: (value: string) => void;
   }) => {
+    // eslint-disable-next-line no-console
     console.log('prompt function called with:', { title, message, promptLabel, promptType });
     setDialog({
       type: 'prompt',

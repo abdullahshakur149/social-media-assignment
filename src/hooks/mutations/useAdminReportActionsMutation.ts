@@ -19,6 +19,7 @@ export function useAdminReportActionsMutation() {
       action: 'dismiss' | 'block_post' | 'review';
       adminNotes?: string;
     }) => {
+      // eslint-disable-next-line no-console
       console.log('Making API call to:', `/api/admin/reports/${reportId}`, { action, adminNotes });
 
       const res = await fetch(`/api/admin/reports/${reportId}`, {
@@ -27,15 +28,18 @@ export function useAdminReportActionsMutation() {
         body: JSON.stringify({ action, adminNotes }),
       });
 
+      // eslint-disable-next-line no-console
       console.log('API response status:', res.status);
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
+        // eslint-disable-next-line no-console
         console.error('API error:', body);
         throw Error(body?.message ?? 'Failed to process report');
       }
 
       const result = await res.json();
+      // eslint-disable-next-line no-console
       console.log('API success:', result);
       return result;
     },
